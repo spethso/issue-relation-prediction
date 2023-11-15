@@ -70,18 +70,6 @@ class IssueRelationDataset(Dataset):
             'label': torch.tensor(issue_pair_relation_tupel[1], dtype=torch.long)
         }
 
-# Load the tokenizer and the model
-tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
-model = RobertaForSequenceClassification.from_pretrained('roberta-base', num_labels=5)
-
-# Define the dataset and the dataloader
-dataset = IssueRelationDataset(issue_pair_relation_tupels, tokenizer)
-dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
-
-# Define the optimizer and the loss function
-optimizer = AdamW(model.parameters(), lr=5e-5)
-loss_fn = torch.nn.CrossEntropyLoss()
-
 # If there's a GPU available...
 if torch.cuda.is_available():    
     # Tell PyTorch to use the GPU.    
@@ -92,6 +80,19 @@ if torch.cuda.is_available():
 else:
     print('No GPU available, using the CPU instead.')
     device = torch.device("cpu")
+
+# Load the tokenizer and the model
+tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
+model = RobertaForSequenceClassification.from_pretrained('roberta-base', num_labels=5).to(device)
+
+# Define the dataset and the dataloader
+dataset = IssueRelationDataset(issue_pair_relation_tupels, tokenizer)
+dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
+
+# Define the optimizer and the loss function
+optimizer = AdamW(model.parameters(), lr=5e-5)
+loss_fn = torch.nn.CrossEntropyLoss()
+
 
 # Train the model
 for epoch in range(3):
